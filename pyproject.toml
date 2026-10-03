@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf-pii-redactor"
+version = "1.0.0"
+description = "Offline tool to detect and permanently redact personal data in PDFs (incl. OCR)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["pymupdf>=1.24,<2", "spacy>=3.7,<4"]
+
+[project.optional-dependencies]
+ui = ["streamlit>=1.35"]
+dev = ["pytest"]
+
+[project.scripts]
+pii-redactor = "pii_redactor.cli:main"
+
+[tool.setuptools]
+packages = ["pii_redactor"]
