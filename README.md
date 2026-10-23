@@ -51,6 +51,11 @@ flowchart LR
 
 ## Schnellstart (Windows)
 
+**Per Doppelklick:** Das komplette ZIP entpacken und im Projektordner `start_redactor.bat` öffnen. Voraussetzung ist Python 3.12. Beim ersten Start richtet der Starter automatisch `.venv` ein und installiert die benötigten Pakete. Dafür ist Internet nötig; das Fenster kann einige Minuten beschäftigt sein. Danach öffnet sich die lokale Oberfläche im Browser. Das Startfenster während der Nutzung offen lassen. Spätere Starts verwenden die vorhandene Umgebung.
+
+Die optionale Namenserkennung benötigt zusätzlich das deutsche spaCy-Modell; OCR benötigt Tesseract mit `deu` und `eng`. Diese Erweiterungen werden durch den Starter nicht automatisch installiert. Die folgenden Befehle zeigen die manuelle Einrichtung einschließlich des Namensmodells.
+
+
 Voraussetzungen: Python 3.12, optional [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) mit den Sprachdateien `deu` und `eng` für OCR.
 
 ```powershell
