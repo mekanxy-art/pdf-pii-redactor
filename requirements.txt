@@ -1,4 +1,4 @@
-pymupdf>=1.24,<2
-spacy>=3.7,<4
-streamlit>=1.35
-pytest
+pymupdf==1.28.2
+spacy==3.8.16
+streamlit==1.66.1
+pytest==9.1.1

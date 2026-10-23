@@ -12,9 +12,7 @@
 
 > **English TL;DR:** A local, offline tool that detects personal data in PDFs (IBAN, e-mail, phone, tax ID, names, ...) and **permanently removes** it from the file, including scanned pages via OCR. Checksum validation keeps false positives low, and a post-redaction check reports anything that slipped through.
 
-<!-- Nach dem Hinzufügen von docs/screenshot.png die nächste Zeile einkommentieren:
-![Screenshot der App](docs/screenshot.png)
--->
+![Lokale Oberfläche des PDF-Redactors](docs/screenshot.png)
 
 ## Warum dieses Projekt?
 
@@ -53,7 +51,7 @@ flowchart LR
 
 ## Schnellstart (Windows)
 
-Voraussetzungen: Python 3.12, optional [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) mit der Sprachdatei `deu` für OCR.
+Voraussetzungen: Python 3.12, optional [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) mit den Sprachdateien `deu` und `eng` für OCR.
 
 ```powershell
 git clone https://github.com/mekanxy-art/pdf-pii-redactor.git
@@ -64,7 +62,7 @@ python -m venv .venv
 .venv\Scripts\streamlit.exe run app.py
 ```
 
-Ein Testdokument mit erfundenen Daten erzeugst du mit `python make_test.py`.
+Ein Testdokument mit erfundenen Daten erzeugst du mit `.venv\Scripts\python.exe make_test.py`. Alternativ liegt unter [samples/example.pdf](samples/example.pdf) ein synthetisches Beispieldokument. Dieses enthält keine echten Kundendaten.
 
 ## Nutzung
 
@@ -111,7 +109,7 @@ tests/             pytest-Tests
 .venv\Scripts\python.exe -m pytest
 ```
 
-Die Tests prüfen Validatoren, Überschneidungen, Namen-Verbreitung, den Parser der Bereiche und, dass geschwärzter Text im PDF wirklich nicht mehr vorhanden ist. Der OCR-Test wird übersprungen, wenn Tesseract fehlt. Bei jedem Push läuft derselbe Satz Tests in GitHub Actions.
+Die Tests prüfen Validatoren, Überschneidungen, Namen-Verbreitung, den Parser der Bereiche und, dass geschwärzter Text im PDF wirklich nicht mehr vorhanden ist. Der OCR-Test wird übersprungen, wenn Tesseract fehlt. Die enthaltene GitHub-Actions-Konfiguration führt den Testsatz bei Pushes und Pull Requests aus. Maßgeblich ist das tatsächliche Ergebnis des jeweiligen Laufs. Der lokale OCR-Test kann bei fehlenden Sprachdaten übersprungen werden; die CI installiert deutsche und englische Sprachdaten ausdrücklich.
 
 ## Grenzen
 
