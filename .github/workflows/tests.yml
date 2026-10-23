@@ -28,5 +28,6 @@ jobs:
           cache: pip
       - name: First start from a project without a virtual environment
         run: cmd /d /c start_redactor.bat --setup-only
-      - name: Launcher regression checks
-        run: .venv/Scripts/python.exe -m pytest tests/test_launcher.py -ra
+      - name: Launcher, file cleanup and real model checks
+        run: .venv/Scripts/python.exe -m pytest tests/test_launcher.py tests/test_pdf_handles.py tests/test_installed_model.py -ra
+

@@ -12,6 +12,16 @@
 
 > **English TL;DR:** A local, offline tool that detects personal data in PDFs (IBAN, e-mail, phone, tax ID, names, ...) and **permanently removes** it from the file, including scanned pages via OCR. Checksum validation keeps false positives low, and a post-redaction check reports anything that slipped through.
 
+## Projekt ansehen oder ausprobieren
+
+**PII** bedeutet *Personally Identifiable Information*, also personenbezogene Daten. Dieses Projekt verbindet eine lokale Python-Oberfläche mit PDF-Verarbeitung, regelbasierter Erkennung, einem deutschen Sprachmodell und automatisierten Tests.
+
+- **Schnell ansehen:** Der Screenshot unten zeigt die Oberfläche und ein Verarbeitungsergebnis. Unter [Technische Entscheidungen](#technische-entscheidungen) steht, wie die Umsetzung funktioniert.
+- **Herunterladen:** [Vollständiges Projekt als ZIP](https://github.com/mekanxy-art/pdf-pii-redactor/archive/refs/heads/main.zip) – ohne GitHub-Konto oder Git-Installation.
+- **Ausprobieren:** [Windows-Schnellstart](#schnellstart-windows) und [Beispiel-PDF](samples/example.pdf). Python 3.12 und Internet für die erste Einrichtung sind erforderlich; anschließend erfolgt die Dokumentverarbeitung lokal.
+
+GitHub zeigt den Quellcode und diese Vorschau. Die Anwendung selbst läuft nach der Einrichtung auf dem eigenen Rechner; es gibt hier keine gehostete Web-Demo und keine fertige Windows-EXE.
+
 ![Lokale Oberfläche des PDF-Redactors](docs/screenshot.png)
 
 ## Warum dieses Projekt?
@@ -51,23 +61,52 @@ flowchart LR
 
 ## Schnellstart (Windows)
 
-**Per Doppelklick:** Das komplette ZIP entpacken und im Projektordner `start_redactor.bat` öffnen. Voraussetzung ist Python 3.12. Beim ersten Start richtet der Starter automatisch `.venv` ein und installiert die benötigten Pakete. Dafür ist Internet nötig; das Fenster kann einige Minuten beschäftigt sein. Danach öffnet sich die lokale Oberfläche im Browser. Das Startfenster während der Nutzung offen lassen. Spätere Starts verwenden die vorhandene Umgebung.
+1. **Python 3.12 installieren**, falls noch nicht vorhanden. Das Projekt wurde mit dieser Version getestet.
+2. [Projekt als ZIP herunterladen](https://github.com/mekanxy-art/pdf-pii-redactor/archive/refs/heads/main.zip), im Explorer **Alle extrahieren** wählen und den entpackten Ordner öffnen, der `app.py` enthält.
+3. **`start_redactor.bat` doppelklicken.** Der Starter erstellt die lokale Umgebung und installiert Pakete sowie das deutsche Sprachmodell (zusätzlich etwa 44 MB). Der erste Start benötigt Internet und kann mehrere Minuten dauern.
+4. Die Oberfläche öffnet sich im Browser. Falls sie sich nicht automatisch öffnet: [http://127.0.0.1:8501](http://127.0.0.1:8501) aufrufen. Das Startfenster während der Nutzung offen lassen; mit **Strg+C** beenden.
 
-Der Starter installiert auch das deutsche spaCy-Modell für die optionale Namenserkennung (etwa 44 MB). OCR benötigt zusätzlich Tesseract mit `deu` und `eng`; Tesseract wird nicht automatisch installiert. Die folgenden Befehle zeigen die manuelle Einrichtung.
+Später reicht erneut der Doppelklick. Den Projektordner vollständig zusammenlassen; `.venv` wird auf jedem Rechner neu eingerichtet und gehört nicht ins Repository.
 
+### Erster Funktionstest
 
-Voraussetzungen: Python 3.12, optional [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) mit den Sprachdateien `deu` und `eng` für OCR.
+1. In der Oberfläche `samples/example.pdf` aus dem entpackten Projekt auswählen. Das Dokument enthält ausschließlich erfundene Daten.
+2. Für den ersten Test OCR ausgeschaltet lassen und auf **Schwaerzen** klicken. E-Mail und IBAN werden automatisch erkannt. Die Option für Namen und Orte kann zusätzlich aktiviert werden; eigene Namen lassen sich auch im Textfeld angeben.
+3. Auf **Geschwaerzte PDF laden** klicken und die Ergebnisdatei öffnen. Geschwärzte Inhalte dürfen auch beim Kopieren bzw. bei der Textsuche nicht mehr erscheinen. Ergebnisse immer kontrollieren.
+
+### Häufige Startfragen
+
+| Meldung / Situation | Vorgehen |
+|---|---|
+| Python 3.12 nicht gefunden | Python 3.12 installieren, anschließend den Starter erneut öffnen. |
+| Installation scheitert | Internetzugang prüfen und den Starter erneut ausführen. Das Fenster zeigt den konkreten Fehler; fehlende Pakete werden beim nächsten Start erneut eingerichtet. |
+| Deutsches Sprachmodell fehlt | App beenden und den aktuellen Starter erneut öffnen. Dieser installiert das Modell automatisch. |
+| Port 8501 bereits belegt | Bereits laufende Instanz schließen oder im Projektordner `python start_redactor.py --port 8502` verwenden. |
+| OCR funktioniert nicht | OCR ist eine zusätzliche Einrichtung, siehe unten. Für PDFs mit auswählbarem Text ist OCR nicht erforderlich. |
+
+### OCR für gescannte PDFs (optional)
+
+Zusätzlich wird [Tesseract mit deutschen und englischen Sprachdaten](https://github.com/UB-Mannheim/tesseract/wiki) benötigt. Der Starter installiert Tesseract nicht automatisch. Unter Windows wird `C:\Program Files\Tesseract-OCR\tessdata` erkannt. Bei einer anderen Installation `TESSDATA_PREFIX` auf den Ordner setzen, der `deu.traineddata` und `eng.traineddata` enthält. Anschließend den Starter neu öffnen und die OCR-Option aktivieren.
+
+### Alternative: Terminal / macOS / Linux
+
+Unter Windows kann das Repository auch geklont und der gleiche Starter verwendet werden:
 
 ```powershell
 git clone https://github.com/mekanxy-art/pdf-pii-redactor.git
 cd pdf-pii-redactor
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe -m spacy download de_core_news_md
-.venv\Scripts\streamlit.exe run app.py
+py -3.12 start_redactor.py
 ```
 
-Ein Testdokument mit erfundenen Daten erzeugst du mit `.venv\Scripts\python.exe make_test.py`. Alternativ liegt unter [samples/example.pdf](samples/example.pdf) ein synthetisches Beispieldokument. Dieses enthält keine echten Kundendaten.
+Unter macOS/Linux nach dem Entpacken im Projektordner mit installiertem Python 3.12:
+
+```sh
+python3.12 start_redactor.py
+```
+
+Auf Linux muss gegebenenfalls das `venv`-Paket zur Python-Installation vorhanden sein. Der Python-Starter unterstützt diese Plattformen; automatisch geprüft werden Windows und Ubuntu. macOS wurde nicht separat getestet. Für OCR werden Tesseract sowie `deu` und `eng` benötigt.
+
+Ein weiteres synthetisches Testdokument erzeugt `.venv\Scripts\python.exe make_test.py` unter Windows (macOS/Linux: `.venv/bin/python make_test.py`).
 
 ## Nutzung
 
@@ -83,7 +122,7 @@ Ein Testdokument mit erfundenen Daten erzeugst du mit `.venv\Scripts\python.exe 
 .venv\Scripts\python.exe -m pii_redactor.cli in.pdf out.pdf --region "1;10;40;90;48"
 ```
 
-Optional lässt sich das Projekt als Paket installieren (`pip install -e ".[ui]"`) und dann mit dem Befehl `pii-redactor` aufrufen.
+Für die Paketinstallation ist `python -m pip install -e ".[ui]"` möglich; danach steht `pii-redactor` zur Verfügung. Bei diesem Weg muss das Namensmodell bei Bedarf separat mit `python -m spacy download de_core_news_md` installiert werden. Der oben beschriebene Starter übernimmt diesen Schritt automatisch.
 
 ## Technische Entscheidungen
 
@@ -92,7 +131,7 @@ Optional lässt sich das Projekt als Paket installieren (`pip install -e ".[ui]"
 - **Mehrere Durchgänge:** Nach dem Schwärzen ändert sich der Kontext für die Namenserkennung, und sie findet oft weitere Treffer. Das Tool wiederholt bis zu dreimal pro Seite.
 - **Echte Schwärzung:** Es werden Redaction-Annotationen gesetzt und mit `apply_redactions` angewendet. Dadurch verschwindet der Text aus dem Dokument.
 - **Nachprüfung:** Das Ergebnis wird erneut analysiert (bei Scans per OCR). Mögliche Resttreffer erscheinen lokal als Tabelle.
-- **Lokal:** Es gibt keine Netzwerkzugriffe. Der Report enthält nur Typ und Anzahl der Treffer, nie Klartext.
+- **Lokal:** Die Dokumentverarbeitung benötigt nach der Einrichtung keine Internetverbindung. Der Starter bindet die Oberfläche an `127.0.0.1` und deaktiviert Streamlit-Nutzungsstatistiken. Die Ersteinrichtung lädt Pakete und Modell herunter. Der JSON-Report enthält nur Typ und Anzahl der Treffer; mögliche Resttreffer werden in der lokalen Oberfläche bzw. im Terminal als Text angezeigt.
 
 ## Projektstruktur
 
