@@ -27,7 +27,7 @@ def prepare_environment(root: Path) -> Path:
     ready = False
     if previous == wanted:
         result = subprocess.run(
-            [str(python), "-c", "import streamlit, spacy, pymupdf"],
+            [str(python), "-c", "import streamlit, spacy, pymupdf, de_core_news_md"],
             cwd=root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
         ready = result.returncode == 0

@@ -97,45 +97,44 @@ def redact_pdf(src: str, dst: str, terms: Iterable[str] = (), types=None,
     regions: manuelle Bereiche (Region-Objekte aus regions.parse_regions)."""
     stats: Counter = Counter()
     ner = _get_ner(use_ner)
-    doc = pymupdf.open(src)
-    if doc.needs_pass:
-        raise ValueError("PDF ist passwortgeschuetzt")
-    for page in doc:
-        if regions:
-            _apply_regions(page, regions, fill, stats)
-        limit, rnd = MAX_PASSES, 0
-        while rnd < limit:
-            first = rnd == 0
-            rnd += 1
-            text, spans, words, used_ocr = _extract(page, ocr)
-            if first:
-                if used_ocr:
-                    stats[f"_ocr_page_{page.number + 1}"] = 1
-                    limit = OCR_PASSES
-                elif not text.strip():
-                    stats["_pages_without_text_layer"] += 1
-            findings = detect(text, terms=terms, types=types, ner=ner)
-            rects = _image_rects(page, keep_large=ocr) if (remove_images and first) else []
-            if not findings and not rects:
-                break
-            if rects:
-                for r in rects:
-                    page.add_redact_annot(r, fill=fill)
-                    stats["IMAGE"] += 1
-                page.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_REMOVE)
-            if findings:
-                for f in findings:
-                    for s, e, idx in spans:
-                        if s < f.end and f.start < e:
-                            page.add_redact_annot(pymupdf.Rect(words[idx][:4]), fill=fill)
-                    stats[f.type] += 1
-                page.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_PIXELS)
-    doc.set_metadata({})
-    doc.del_xml_metadata()
-    for i in range(doc.embfile_count() - 1, -1, -1):
-        doc.embfile_del(i)
-    doc.save(dst, garbage=4, deflate=True, clean=True)
-    doc.close()
+    with pymupdf.open(src) as doc:
+        if doc.needs_pass:
+            raise ValueError("PDF ist passwortgeschuetzt")
+        for page in doc:
+            if regions:
+                _apply_regions(page, regions, fill, stats)
+            limit, rnd = MAX_PASSES, 0
+            while rnd < limit:
+                first = rnd == 0
+                rnd += 1
+                text, spans, words, used_ocr = _extract(page, ocr)
+                if first:
+                    if used_ocr:
+                        stats[f"_ocr_page_{page.number + 1}"] = 1
+                        limit = OCR_PASSES
+                    elif not text.strip():
+                        stats["_pages_without_text_layer"] += 1
+                findings = detect(text, terms=terms, types=types, ner=ner)
+                rects = _image_rects(page, keep_large=ocr) if (remove_images and first) else []
+                if not findings and not rects:
+                    break
+                if rects:
+                    for r in rects:
+                        page.add_redact_annot(r, fill=fill)
+                        stats["IMAGE"] += 1
+                    page.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_REMOVE)
+                if findings:
+                    for f in findings:
+                        for s, e, idx in spans:
+                            if s < f.end and f.start < e:
+                                page.add_redact_annot(pymupdf.Rect(words[idx][:4]), fill=fill)
+                        stats[f.type] += 1
+                    page.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_PIXELS)
+        doc.set_metadata({})
+        doc.del_xml_metadata()
+        for i in range(doc.embfile_count() - 1, -1, -1):
+            doc.embfile_del(i)
+        doc.save(dst, garbage=4, deflate=True, clean=True)
     if report:
         Path(report).write_text(json.dumps({k: v for k, v in stats.items() if not k.startswith("_")}, indent=2),
                                 encoding="utf-8")
@@ -146,18 +145,18 @@ def verify_clean(path: str, terms: Iterable[str] = (), use_ner: bool = False,
                  check_images: bool = False, ocr: bool = False) -> list:
     """Liste (Seite, Typ, Text) der Resttreffer. Mit ocr=True werden auch Scanseiten per OCR geprueft."""
     ner = _get_ner(use_ner)
-    doc = pymupdf.open(path)
-    leftovers = []
-    for n, page in enumerate(doc, 1):
-        text, _, _, _ = _extract(page, ocr)
-        for f in detect(text, terms=terms, ner=ner):
-            leftovers.append((n, f.type, f.text))
-        if check_images and _image_rects(page, keep_large=ocr):
-            leftovers.append((n, "IMAGE", "<Bild>"))
+    with pymupdf.open(path) as doc:
+        leftovers = []
+        for n, page in enumerate(doc, 1):
+            text, _, _, _ = _extract(page, ocr)
+            for f in detect(text, terms=terms, ner=ner):
+                leftovers.append((n, f.type, f.text))
+            if check_images and _image_rects(page, keep_large=ocr):
+                leftovers.append((n, "IMAGE", "<Bild>"))
     return leftovers
 
 
 def pages_without_text(path: str) -> list[int]:
     """Seitennummern ohne Textlayer (Scans/Bilder)."""
-    doc = pymupdf.open(path)
-    return [n for n, page in enumerate(doc, 1) if not page.get_text().strip()]
+    with pymupdf.open(path) as doc:
+        return [n for n, page in enumerate(doc, 1) if not page.get_text().strip()]

@@ -48,6 +48,13 @@ if file and st.button("Schwaerzen", type="primary"):
     if regions is None:
         st.error("Bitte zuerst die manuellen Bereiche korrigieren.")
         st.stop()
+    if use_ner:
+        from pii_redactor.ner import load_model
+        try:
+            load_model()
+        except RuntimeError:
+            st.error("Das deutsche Sprachmodell fehlt. Bitte die App schliessen und start_redactor.bat erneut starten; der Starter richtet das Modell ein. Alternativ den Haken bei der automatischen Namenserkennung entfernen und eigene Begriffe angeben.")
+            st.stop()
     terms = [t for t in terms_raw.splitlines() if t.strip()]
     with tempfile.TemporaryDirectory() as tmp:
         src, dst = Path(tmp, "in.pdf"), Path(tmp, "out.pdf")

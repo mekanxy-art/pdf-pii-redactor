@@ -49,7 +49,7 @@ def test_unchanged_working_environment_does_not_reinstall(tmp_path):
     with patch.object(launcher.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as runner:
         launcher.prepare_environment(root)
     assert runner.call_count == 1
-    assert runner.call_args.args[0][1:3] == ["-c", "import streamlit, spacy, pymupdf"]
+    assert runner.call_args.args[0][1:3] == ["-c", "import streamlit, spacy, pymupdf, de_core_news_md"]
 
 
 def test_failed_install_is_not_marked_ready(tmp_path):

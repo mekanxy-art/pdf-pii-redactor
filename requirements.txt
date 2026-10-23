@@ -2,3 +2,4 @@ pymupdf==1.28.2
 spacy==3.8.16
 streamlit==1.66.1
 pytest==9.1.1
+https://github.com/explosion/spacy-models/releases/download/de_core_news_md-3.8.0/de_core_news_md-3.8.0-py3-none-any.whl
